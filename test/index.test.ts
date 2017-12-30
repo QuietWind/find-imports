@@ -1,14 +1,12 @@
 import * as assert from "assert";
 import * as path from "path";
-import { findImports } from "./../src/index";
+import f, { findImports } from "./../src/index";
 
 describe("findImports", () => {
   describe("#findImports fixture", () => {
-    const strs = findImports(path.resolve(__dirname, "./files/fixture.js"), {
-      findChild: false,
-      log: false,
-      baseUrl: []
-    });
+    const strs = f.findImportsByName(
+      path.resolve(__dirname, "./files/fixture.js")
+    );
 
     it("find all require files", () => {
       assert.deepEqual(strs, [
@@ -22,13 +20,8 @@ describe("findImports", () => {
   });
 
   describe("#findImports fixture-export", () => {
-    const strs = findImports(
-      path.resolve(__dirname, "./files/fixture-export.js"),
-      {
-        findChild: false,
-        log: false,
-        baseUrl: []
-      }
+    const strs = f.findImportsByName(
+      path.resolve(__dirname, "./files/fixture-export.js")
     );
 
     it("find all require files", () => {
@@ -37,11 +30,9 @@ describe("findImports", () => {
   });
 
   describe("#findImports App.tsx", () => {
-    const strs = findImports(path.resolve(__dirname, "./files/App.tsx"), {
-      findChild: false,
-      log: false,
-      baseUrl: []
-    });
+    const strs = f.findImportsByName(
+      path.resolve(__dirname, "./files/App.tsx")
+    );
 
     it("find all require files", () => {
       assert.deepEqual(strs, [
@@ -67,16 +58,13 @@ describe("findImports", () => {
       assert.deepEqual(strs, [
         "react",
         "react-router-dom",
-        "./Todo",
-        "./NormalTodo",
-        "./Home",
-        "./App.css",
-        "./logo.svg",
+        "test/files/Todo.tsx",
+        "test/files/NormalTodo.tsx",
+        "test/files/Home.tsx",
         "react-addons-perf",
-        "./TodoItem",
+        "test/files/TodoItem.tsx",
         "immutable",
-        "./data",
-        "./Todo.css"
+        "test/files/data.ts"
       ]);
     });
   });

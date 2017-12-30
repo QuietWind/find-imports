@@ -1,4 +1,5 @@
-import { findImports } from "./../src/index";
+import { findImports } from "qw-find-imports";
+
 
 const strs2 = findImports(
   "XXXXXXXXXsrc-react/pages/pay3.0/index.js",

@@ -1,3 +1,4 @@
+export declare const extensions: string[];
 export interface PathOption {
     baseUrl: string[];
 }

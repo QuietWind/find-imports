@@ -7,6 +7,9 @@ const store = Dstore("FILENAME");
 
 store.clear();
 
+
+export const extensions = [".js", ".jsx", ".ts", ".tsx"];
+
 export interface PathOption {
   baseUrl: string[];
 }
@@ -53,7 +56,6 @@ export function findModulePath(
    * . 绝对路径
    */
   const ext = path.extname(filename);
-  const extensions = [".js", ".jsx", ".ts", ".tsx"];
   if (ext && extensions.indexOf(ext) === -1) {
     return null;
   }

@@ -12,9 +12,7 @@ const r = (str: string, filename: string): string[] => {
   return findImportsByStr(str, options);
 };
 
-export function findImportsByName(
-  filename: string
-): string[] {
+export function findImportsByName(filename: string): string[] {
   const data_str = fs.readFileSync(filename, "utf8");
 
   return r(data_str, filename);

@@ -1,6 +1,7 @@
+import { extname, relative, isAbsolute } from "path";
 import * as fs from "fs";
 import * as store from "data-store";
-import { digest, findModulePath } from "./file";
+import { digest, findModulePath, extensions } from "./file";
 import { findImportsByName, findImportsByNameAsync } from "./find.by.name";
 
 export interface TFindImportsOptions {
@@ -27,7 +28,7 @@ const uniqueArray = function(arrArg: string[]) {
   });
 };
 
-export function findImports(
+function findAllImports(
   filename: string,
   options: TFindImportsOptions
 ): string[] {
@@ -41,33 +42,60 @@ export function findImports(
   const storeItems = findStore.get(key);
   const dataImports: string[] = storeItems || findImportsByName(filename);
 
-  findStore.set(key, [...dataImports]);
-
   if (log) {
     logStrings(dataImports);
   }
 
-  if (findChild) {
-    const items = dataImports.reduce((prev, next) => {
-      const newFilename = findModulePath(filename, next, {
+  const abPaths = (items: string[]): string[] => {
+    const strs: string[] = [];
+    items.forEach(p => {
+      const r = findModulePath(filename, p, {
         baseUrl
       });
 
-      if (!newFilename) return [...prev];
-      if (typeof newFilename !== "string") {
-        console.log(newFilename, filename, next);
+      if (r) {
+        strs.push(r);
+      } else if (!extname(p)) {
+        // filter not in extensions
+        strs.push(p);
+      }
+    });
+
+    findStore.set(key, [...strs]);
+
+    return strs;
+  };
+
+  if (findChild) {
+    const items = abPaths(dataImports).reduce((prev, next) => {
+      const s = findStore.get(filenamekey(next));
+      if (s) return [...prev];
+      if (
+        !fs.existsSync(next) ||
+        extensions.findIndex(e => e === extname(next)) < 0
+      ) {
+        return [...prev];
       }
 
-      const s = findStore.get(filenamekey(newFilename));
-      if (s) return [...prev];
-
-      return [...prev, ...findImports(newFilename, options)];
+      return [...prev, ...findImports(next, options)];
     }, dataImports);
 
-    return uniqueArray(items);
+    return uniqueArray(abPaths(items));
   } else {
-    return uniqueArray(dataImports);
+    return uniqueArray(abPaths(dataImports));
   }
+}
+
+export function findImports(filename: string, options: TFindImportsOptions) {
+  const paths = findAllImports(filename, options);
+
+  return paths.map(ele => {
+    if (isAbsolute(ele)) {
+      return relative(options.baseUrl[0], ele);
+    }
+
+    return ele;
+  });
 }
 
 export default {
